@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickText - Share Text Instantly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #059669;
+            --error: #dc2626;
+        }
+
+        /* Light mode colors */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --navbar-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #1f2937;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --text-white: #ffffff;
+            --text-white-muted: rgba(255, 255, 255, 0.8);
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --input-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark mode colors */
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --card-bg: rgba(30, 30, 46, 0.95);
+            --navbar-bg: rgba(0, 0, 0, 0.3);
+            --text-primary: #f9fafb;
+            --text-secondary: #e5e7eb;
+            --text-muted: #9ca3af;
+            --text-white: #ffffff;
+            --text-white-muted: rgba(255, 255, 255, 0.7);
+            --border: #374151;
+            --border-light: #4b5563;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --input-bg: #1f2937;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar {
+            background: var(--navbar-bg);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: var(--text-white);
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-white-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-white);
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .main-content {
+            padding: 2rem 0;
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-white);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px var(--shadow);
+            border: 1px solid var(--border-light);
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            max-height: 400px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.2s;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .char-count {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--border);
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #f0fdf4;
+            color: var(--success);
+            border: 1px solid #bbf7d0;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: var(--error);
+            border: 1px solid #fecaca;
+        }
+
+        [data-theme="dark"] .status.success {
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+        }
+
+        [data-theme="dark"] .status.error {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .results {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            display: none;
+            transition: background 0.3s ease;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-item {
+            margin-bottom: 1rem;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .code-display {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .code-value {
+            flex: 1;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+        }
+
+        .link-display {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .link-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.875rem;
+            outline: none;
+            color: var(--text-primary);
+        }
+
+        .btn-copy {
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 0.25rem;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .warning {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fffbeb;
+            border: 1px solid #fed7aa;
+            border-radius: 0.75rem;
+            color: #92400e;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        [data-theme="dark"] .warning {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            color: #fbbf24;
+        }
+
+        .warning.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .form-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .button-group {
+                justify-content: center;
+            }
+            
+            .nav-container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">QuickText</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Share</a>
+                <a href="fetch.html" class="nav-link">Fetch</a>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="hero">
+                <h1>Share Text Instantly</h1>
+                <p>Securely share text with anyone using a simple code</p>
+            </section>
+
+            <div class="card">
+                <form id="shareForm">
+                    <div class="form-group">
+                        <label for="textInput">Your Text</label>
+                        <textarea 
+                            id="textInput" 
+                            placeholder="Enter your text here..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-footer">
+                        <span class="char-count">0 characters</span>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="oneTimeCheck">
+                            <label for="oneTimeCheck">Delete after first view</label>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" id="clearBtn" disabled>
+                                Clear
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="shareBtn" disabled>
+                                Share Text
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="status" class="status"></div>
+
+                <div id="results" class="results">
+                    <div class="result-item">
+                        <span class="result-label">Share Code</span>
+                        <div class="code-display">
+                            <span id="shareCode" class="code-value"></span>
+                            <button type="button" class="btn-copy" id="copyCodeBtn" title="Copy code">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="result-item">
+                        <span class="result-label">Direct Link</span>
+                        <div class="link-display">
+                            <input type="text" id="shareLink" class="link-input" readonly>
+                            <button type="button" class="btn-copy" id="copyLinkBtn" title="Copy link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="oneTimeWarning" class="warning">
+                        <strong>Auto-Delete Enabled:</strong> This text will be permanently deleted after the first view.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7CwcJ42D_X4-E9_3sT9Bx31IJDCRCU0M",
+            authDomain: "qtext-a12dd.firebaseapp.com",
+            projectId: "qtext-a12dd",
+            storageBucket: "qtext-a12dd.firebasestorage.app",
+            messagingSenderId: "611062076309",
+            appId: "1:611062076309:web:913ff067a40e54a26f5c9c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const textInput = document.getElementById('textInput');
+        const charCount = document.querySelector('.char-count');
+        const shareBtn = document.getElementById('shareBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const oneTimeCheck = document.getElementById('oneTimeCheck');
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+        const shareCode = document.getElementById('shareCode');
+        const shareLink = document.getElementById('shareLink');
+        const oneTimeWarning = document.getElementById('oneTimeWarning');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = themeToggle.querySelector('.sun-icon');
+        const moonIcon = themeToggle.querySelector('.moon-icon');
+        
+        // Get saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        }
+
+        // Update character count and button states
+        textInput.addEventListener('input', () => {
+            const length = textInput.value.length;
+            charCount.textContent = `${length} characters`;
+            
+            const hasText = textInput.value.trim().length > 0;
+            shareBtn.disabled = !hasText;
+            clearBtn.disabled = !hasText && !oneTimeCheck.checked;
+        });
+
+        // Handle one-time checkbox
+        oneTimeCheck.addEventListener('change', () => {
+            clearBtn.disabled = !textInput.value.trim() && !oneTimeCheck.checked;
+        });
+
+        // Clear form
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Clear all data and reset the form?')) {
+                textInput.value = '';
+                oneTimeCheck.checked = false;
+                charCount.textContent = '0 characters';
+                shareBtn.disabled = true;
+                clearBtn.disabled = true;
+                hideStatus();
+                hideResults();
+                textInput.focus();
+            }
+        });
+
+        // Generate unique code
+        async function generateUniqueCode(length = 6) {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            
+            for (let attempt = 0; attempt < 10; attempt++) {
+                const code = Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                
+                const exists = await getDoc(doc(db, "texts", code));
+                if (!exists.exists()) {
+                    return code;
+                }
+            }
+            
+            throw new Error("Could not generate unique code. Please try again.");
+        }
+
+        // Share form submission
+        document.getElementById('shareForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = textInput.value.trim();
+            if (!text) {
+                showStatus('Please enter some text to share', 'error');
+                return;
+            }
+
+            try {
+                shareBtn.disabled = true;
+                shareBtn.textContent = 'Sharing...';
+                showStatus('Generating secure code...', 'info');
+
+                const code = await generateUniqueCode();
+                await setDoc(doc(db, "texts", code), {
+                    text,
+                    createdAt: new Date().toISOString(),
+                    oneTime: oneTimeCheck.checked
+                });
+
+                const link = `${window.location.origin}/fetch.html?code=${encodeURIComponent(code)}`;
+                
+                shareCode.textContent = code;
+                shareLink.value = link;
+                
+                if (oneTimeCheck.checked) {
+                    oneTimeWarning.classList.add('show');
+                } else {
+                    oneTimeWarning.classList.remove('show');
+                }
+                
+                showResults();
+                showStatus('Text shared successfully!', 'success');
+
+            } catch (error) {
+                console.error('Share error:', error);
+                showStatus(`Failed to share: ${error.message}`, 'error');
+            } finally {
+                shareBtn.disabled = false;
+                shareBtn.textContent = 'Share Text';
+            }
+        });
+
+        // Copy to clipboard
+        async function copyToClipboard(text, successMessage) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast(successMessage);
+            } catch (error) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(successMessage);
+            }
+        }
+
+        // Copy buttons
+        copyCodeBtn.addEventListener('click', () => {
+            copyToClipboard(shareCode.textContent, 'Code copied!');
+        });
+
+        copyLinkBtn.addEventListener('click', () => {
+            copyToClipboard(shareLink.value, 'Link copied!');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !shareBtn.disabled) {
+                e.preventDefault();
+                document.getElementById('shareForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Utility functions
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status show ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => hideStatus(), 5000);
+            }
+        }
+
+        function hideStatus() {
+            status.classList.remove('show');
+        }
+
+        function showResults() {
+            results.classList.add('show');
+        }
+
+        function hideResults() {
+            results.classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #059669;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Auto-focus
+        textInput.focus();
+    </script>
+</body>
+</html>
